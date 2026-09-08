@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="今池まつり Compass Editor" Width="1250" Height="980" MinWidth="950" MinHeight="760"
+        WindowStartupLocation="CenterScreen"
         Background="{DynamicResource MaterialDesignPaper}">
     <Grid Margin="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="3*" MinHeight="330"/>
             <RowDefinition Height="2*" MinHeight="300"/>
@@ -14,28 +14,28 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Margin="0,0,0,18">
-            <StackPanel>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
                 <TextBlock Text="今池まつり Compass Editor" FontSize="28" FontWeight="Bold"/>
                 <TextBlock Text="2026 タイムテーブル確認・カテゴリ・タグ編集" Opacity="0.65" Margin="0,2,0,0"/>
             </StackPanel>
-            <Border HorizontalAlignment="Right" VerticalAlignment="Center" Padding="14,8" CornerRadius="4"
-                    Background="{DynamicResource PrimaryHueMidBrush}">
-                <TextBlock Text="2026" Foreground="White" FontSize="18" FontWeight="SemiBold"/>
-            </Border>
-        </Grid>
-
-        <DockPanel Grid.Row="1" Margin="0,0,0,12">
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
                 <Button Content="再読み込み" Style="{StaticResource MaterialDesignOutlinedButton}" Click="ReloadButton_Click" Margin="0,0,8,0" Padding="16,8"/>
                 <Button Content="保存" Style="{StaticResource MaterialDesignRaisedButton}" x:Name="SaveButton" Click="SaveButton_Click" Margin="0,0,8,0" Padding="20,8"/>
                 <Button Content="公式タイムテーブル" Style="{StaticResource MaterialDesignOutlinedButton}" Click="OfficialButton_Click" Padding="16,8"/>
             </StackPanel>
-        </DockPanel>
+            <Border Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="14,8" CornerRadius="4"
+                    Background="{DynamicResource PrimaryHueMidBrush}" Margin="0,0,0,0">
+                <TextBlock Text="2026" Foreground="White" FontSize="18" FontWeight="SemiBold" Visibility="Collapsed"/>
+            </Border>
+        </Grid>
 
-        <GroupBox Grid.Row="2" Header="タイムスケジュール" Style="{StaticResource MaterialDesignCardGroupBox}">
+        <GroupBox Grid.Row="1" Header="タイムスケジュール" Style="{StaticResource MaterialDesignCardGroupBox}">
             <Grid Margin="12">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
@@ -54,7 +54,7 @@
                     <TextBlock x:Name="ScheduleCountText" Grid.Column="3" Text="-" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="4" Text="時刻は24時間表記（HH:mm）" Opacity="0.6" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                 </Grid>
-                <DataGrid x:Name="ScheduleDataGrid" Grid.Row="2" AutoGenerateColumns="False" IsReadOnly="False"
+                <DataGrid x:Name="ScheduleDataGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="False"
                           CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                           SelectionMode="Single" SelectionUnit="FullRow" SelectionChanged="ScheduleDataGrid_SelectionChanged"
                           ItemsSource="{Binding CurrentSchedules}">
@@ -71,7 +71,7 @@
             </Grid>
         </GroupBox>
 
-        <Border Grid.Row="3" Margin="0,16,0,0" Padding="16" CornerRadius="6"
+        <Border Grid.Row="2" Margin="0,16,0,0" Padding="16" CornerRadius="6"
                 Background="{DynamicResource MaterialDesignCardBackground}">
             <Grid DataContext="{Binding SelectedSchedule}">
                 <Grid.RowDefinitions>
@@ -158,7 +158,7 @@
             </Grid>
         </Border>
 
-        <StatusBar Grid.Row="4" Margin="0,16,0,0">
+        <StatusBar Grid.Row="3" Margin="0,16,0,0">
             <StatusBarItem x:Name="ConnectionStatus" Content="接続中…"/>
             <Separator/>
             <StatusBarItem Content="会場を選択 → イベントを選択 → カテゴリ・タグ編集 → 保存" Opacity="0.7"/>
