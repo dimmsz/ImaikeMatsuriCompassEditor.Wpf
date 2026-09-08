@@ -31,18 +31,18 @@ public sealed class SupabaseService
 
     public async Task<List<EventSchedule>> GetSchedulesAsync(CancellationToken cancellationToken = default)
     {
-        using var response = await _http.GetAsync("imaike_event_schedules?select=id,event_date,start_time,end_time,title,venue_id,description,sort_order,category,verified,tags&order=event_date,start_time,sort_order", cancellationToken);
+        using var response = await _http.GetAsync("imaike_event_schedules?select=id,event_date,start_time,end_time,title,venue_id,description,sort_order,genre,verified,tags&order=event_date,start_time,sort_order", cancellationToken);
         await EnsureSuccessAsync(response);
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
         var rows = await JsonSerializer.DeserializeAsync<List<ScheduleRow>>(stream, _json, cancellationToken) ?? [];
-        return rows.Select(x => new EventSchedule(x.Id, DateOnly.Parse(x.EventDate), TimeOnly.Parse(x.StartTime), string.IsNullOrWhiteSpace(x.EndTime) ? null : TimeOnly.Parse(x.EndTime), x.Title, x.VenueId, x.Description ?? "", x.Category ?? "", x.Verified, x.Tags ?? [])).ToList();
+        return rows.Select(x => new EventSchedule(x.Id, DateOnly.Parse(x.EventDate), TimeOnly.Parse(x.StartTime), string.IsNullOrWhiteSpace(x.EndTime) ? null : TimeOnly.Parse(x.EndTime), x.Title, x.VenueId, x.Description ?? "", x.Genre ?? "", x.Verified, x.Tags ?? [])).ToList();
     }
 
     public async Task UpdateScheduleAsync(EventSchedule schedule, CancellationToken cancellationToken = default)
     {
         var payload = JsonSerializer.Serialize(new
         {
-            category = schedule.Genre,
+            genre = schedule.Genre,
             verified = schedule.Verified,
             tags = schedule.Tags.ToArray()
         }, _json);
@@ -61,5 +61,5 @@ public sealed class SupabaseService
     }
 
     private sealed record VenueRow(long Id, [property: JsonPropertyName("venue_no")] short VenueNo, string Name, string? Location, double Latitude, double Longitude, [property: JsonPropertyName("sort_order")] int SortOrder);
-    private sealed record ScheduleRow(long Id, [property: JsonPropertyName("event_date")] string EventDate, [property: JsonPropertyName("start_time")] string StartTime, [property: JsonPropertyName("end_time")] string? EndTime, string Title, [property: JsonPropertyName("venue_id")] long VenueId, string? Description, [property: JsonPropertyName("sort_order")] int SortOrder, string? Category, bool Verified, string[]? Tags);
+    private sealed record ScheduleRow(long Id, [property: JsonPropertyName("event_date")] string EventDate, [property: JsonPropertyName("start_time")] string StartTime, [property: JsonPropertyName("end_time")] string? EndTime, string Title, [property: JsonPropertyName("venue_id")] long VenueId, string? Description, [property: JsonPropertyName("sort_order")] int SortOrder, string? Genre, bool Verified, string[]? Tags);
 }
