@@ -36,27 +36,25 @@
             <Grid Margin="12">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="300"/>
                         <ColumnDefinition Width="28"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="140"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="会場" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <ComboBox x:Name="VenueComboBox" Grid.Column="1" ItemsSource="{Binding Venues}" DisplayMemberPath="Name"
+                    <ComboBox x:Name="VenueComboBox" Grid.Column="0" ItemsSource="{Binding Venues}" DisplayMemberPath="Name"
                               materialDesign:HintAssist.Hint="会場を選択" SelectionChanged="VenueComboBox_SelectionChanged"
                               Padding="8" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="3" Text="対象件数" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <TextBlock x:Name="ScheduleCountText" Grid.Column="4" Text="-" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="5" Text="時刻は24時間表記（HH:mm）" Opacity="0.6" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                    <TextBlock Grid.Column="2" Text="対象件数" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock x:Name="ScheduleCountText" Grid.Column="3" Text="-" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="4" Text="時刻は24時間表記（HH:mm）" Opacity="0.6" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                 </Grid>
-                <TextBlock x:Name="ScheduleHeaderText" Grid.Row="1" Text="会場を選択してください。" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
-                <DataGrid x:Name="ScheduleDataGrid" Grid.Row="1" Margin="0,38,0,0" AutoGenerateColumns="False" IsReadOnly="False"
+                <DataGrid x:Name="ScheduleDataGrid" Grid.Row="2" AutoGenerateColumns="False" IsReadOnly="False"
                           CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                           SelectionMode="Single" SelectionUnit="FullRow" SelectionChanged="ScheduleDataGrid_SelectionChanged"
                           ItemsSource="{Binding CurrentSchedules}">
