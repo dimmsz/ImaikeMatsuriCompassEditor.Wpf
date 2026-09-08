@@ -14,10 +14,7 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Margin="0,0,0,18">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                 <TextBlock Text="今池まつり Compass Editor" FontSize="28" FontWeight="Bold"/>
                 <TextBlock Text="2026 タイムテーブル確認・カテゴリ・タグ編集" Opacity="0.65" Margin="0,2,0,0"/>
@@ -31,21 +28,11 @@
 
         <GroupBox Grid.Row="1" Header="タイムスケジュール" Style="{StaticResource MaterialDesignCardGroupBox}">
             <Grid Margin="12">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                 <Grid Grid.Row="0" Margin="0,0,0,12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="300"/>
-                        <ColumnDefinition Width="28"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="140"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="300"/><ColumnDefinition Width="28"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="140"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                     <ComboBox x:Name="VenueComboBox" Grid.Column="0" ItemsSource="{Binding Venues}" DisplayMemberPath="Name"
-                              materialDesign:HintAssist.Hint="会場を選択" SelectionChanged="VenueComboBox_SelectionChanged"
-                              Padding="8" VerticalAlignment="Center"/>
+                              materialDesign:HintAssist.Hint="会場を選択" SelectionChanged="VenueComboBox_SelectionChanged" Padding="8" VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="2" Text="対象件数" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
                     <TextBlock x:Name="ScheduleCountText" Grid.Column="3" Text="-" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="4" Text="時刻は24時間表記（HH:mm）" Opacity="0.6" VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -69,70 +56,38 @@
             </Grid>
         </GroupBox>
 
-        <Border Grid.Row="2" Margin="0,16,0,0" Padding="16" CornerRadius="6"
-                Background="{DynamicResource MaterialDesignCardBackground}">
+        <Border Grid.Row="2" Margin="0,16,0,0" Padding="16" CornerRadius="6" Background="{DynamicResource MaterialDesignCardBackground}">
             <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Text="編集" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
                 <Grid Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="120"/>
-                        <ColumnDefinition Width="24"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="110"/>
-                        <ColumnDefinition Width="24"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="120"/><ColumnDefinition Width="24"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="110"/><ColumnDefinition Width="24"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="日付" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock Grid.Column="1" Text="{Binding SelectedSchedule.EventDateText, TargetNullValue=—}" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="EditEventDateText" Grid.Column="1" VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="3" Text="開始" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock Grid.Column="4" Text="{Binding SelectedSchedule.StartTimeText, TargetNullValue=—}" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="EditStartTimeText" Grid.Column="4" VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="6" Text="終了" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock Grid.Column="7" Text="{Binding SelectedSchedule.EndTimeText, TargetNullValue=—}" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="EditEndTimeText" Grid.Column="7" VerticalAlignment="Center"/>
                 </Grid>
                 <Grid Grid.Row="2" Margin="0,14,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="24"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="150"/><ColumnDefinition Width="24"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="タイトル" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock Grid.Column="1" Text="{Binding SelectedSchedule.Title, TargetNullValue=イベントを選択してください}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock x:Name="EditTitleText" Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                     <TextBlock Grid.Column="2" Text="カテゴリ" FontWeight="SemiBold" VerticalAlignment="Center" Margin="20,0,10,0"/>
-                    <ComboBox Grid.Column="3" ItemsSource="{Binding Categories}"
-                              SelectedItem="{Binding SelectedSchedule.Category, UpdateSourceTrigger=PropertyChanged}" Padding="6"/>
-                    <CheckBox Grid.Column="5" Content="確認済" IsChecked="{Binding SelectedSchedule.Verified, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="EditCategoryComboBox" Grid.Column="3" ItemsSource="{Binding Categories}" Padding="6" SelectionChanged="EditCategoryComboBox_SelectionChanged"/>
+                    <CheckBox x:Name="EditVerifiedCheckBox" Grid.Column="5" Content="確認済" VerticalAlignment="Center" Checked="EditVerifiedCheckBox_Changed" Unchecked="EditVerifiedCheckBox_Changed"/>
                 </Grid>
                 <Grid Grid.Row="3" Margin="0,16,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="260"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="260"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="タグ" FontWeight="SemiBold" VerticalAlignment="Top" Margin="0,8,10,0"/>
                     <StackPanel Grid.Column="1">
-                        <ComboBox x:Name="TagComboBox" ItemsSource="{Binding AvailableTags}"
-                                  materialDesign:HintAssist.Hint="追加するタグを選択" Padding="6"/>
-                        <Button Content="タグを追加" Style="{StaticResource MaterialDesignOutlinedButton}"
-                                Click="AddTagButton_Click" Margin="0,8,0,0" Padding="12,6"/>
+                        <ComboBox x:Name="TagComboBox" ItemsSource="{Binding AvailableTags}" materialDesign:HintAssist.Hint="追加するタグを選択" Padding="6"/>
+                        <Button Content="タグを追加" Style="{StaticResource MaterialDesignOutlinedButton}" Click="AddTagButton_Click" Margin="0,8,0,0" Padding="12,6"/>
                     </StackPanel>
                     <TextBlock Grid.Column="2" Text="選択中" FontWeight="SemiBold" VerticalAlignment="Top" Margin="20,8,10,0"/>
                     <ScrollViewer Grid.Column="3" MaxHeight="120" VerticalScrollBarVisibility="Auto">
                         <ItemsControl ItemsSource="{Binding SelectedTags}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Margin="0,0,8,8" Padding="8,4" CornerRadius="12" Background="{DynamicResource PrimaryHueMidBrush}">
@@ -150,8 +105,7 @@
         </Border>
 
         <StatusBar Grid.Row="3" Margin="0,16,0,0">
-            <StatusBarItem x:Name="ConnectionStatus" Content="接続中…"/>
-            <Separator/>
+            <StatusBarItem x:Name="ConnectionStatus" Content="接続中…"/><Separator/>
             <StatusBarItem Content="会場を選択 → イベントを選択 → カテゴリ・タグ編集 → 保存" Opacity="0.7"/>
         </StatusBar>
     </Grid>
