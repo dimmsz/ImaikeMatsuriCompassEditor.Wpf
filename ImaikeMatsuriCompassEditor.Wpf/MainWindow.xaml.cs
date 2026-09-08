@@ -74,7 +74,6 @@ public partial class MainWindow : Window
         if (VenueComboBox.SelectedItem is not Venue venue)
         {
             CurrentSchedules.Clear();
-            ScheduleHeaderText.Text = "会場を選択してください。";
             ScheduleCountText.Text = "-";
             SetSelectedSchedule(null);
             return;
@@ -89,7 +88,6 @@ public partial class MainWindow : Window
             CurrentSchedules.Add(schedule);
         }
 
-        ScheduleHeaderText.Text = $"{venue.Name} — タイムスケジュール";
         ScheduleCountText.Text = CurrentSchedules.Count.ToString();
         SetSelectedSchedule(null);
     }
