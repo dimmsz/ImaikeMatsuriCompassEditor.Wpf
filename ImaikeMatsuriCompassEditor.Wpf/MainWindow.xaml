@@ -8,9 +8,8 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="2*" MinHeight="280"/>
-            <RowDefinition Height="Auto" MinHeight="250"/>
+            <RowDefinition Height="3*" MinHeight="330"/>
+            <RowDefinition Height="2*" MinHeight="300"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -33,35 +32,31 @@
             </StackPanel>
         </DockPanel>
 
-        <Border Grid.Row="2" Padding="16,12" Margin="0,0,0,16" CornerRadius="6"
-                Background="{DynamicResource MaterialDesignCardBackground}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="300"/>
-                    <ColumnDefinition Width="28"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="140"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="会場" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                <ComboBox x:Name="VenueComboBox" Grid.Column="1" ItemsSource="{Binding Venues}" DisplayMemberPath="Name"
-                          materialDesign:HintAssist.Hint="会場を選択" SelectionChanged="VenueComboBox_SelectionChanged"
-                          Padding="8" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="3" Text="対象件数" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                <TextBlock x:Name="ScheduleCountText" Grid.Column="4" Text="-" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="5" Text="時刻は24時間表記（HH:mm）" Opacity="0.6" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-            </Grid>
-        </Border>
-
-        <GroupBox Grid.Row="3" Header="タイムスケジュール" Style="{StaticResource MaterialDesignCardGroupBox}">
+        <GroupBox Grid.Row="2" Header="タイムスケジュール" Style="{StaticResource MaterialDesignCardGroupBox}">
             <Grid Margin="12">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock x:Name="ScheduleHeaderText" Text="会場を選択してください。" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
-                <DataGrid x:Name="ScheduleDataGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="False"
+                <Grid Grid.Row="0" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="28"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="会場" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <ComboBox x:Name="VenueComboBox" Grid.Column="1" ItemsSource="{Binding Venues}" DisplayMemberPath="Name"
+                              materialDesign:HintAssist.Hint="会場を選択" SelectionChanged="VenueComboBox_SelectionChanged"
+                              Padding="8" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="3" Text="対象件数" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock x:Name="ScheduleCountText" Grid.Column="4" Text="-" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="5" Text="時刻は24時間表記（HH:mm）" Opacity="0.6" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                </Grid>
+                <TextBlock x:Name="ScheduleHeaderText" Grid.Row="1" Text="会場を選択してください。" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                <DataGrid x:Name="ScheduleDataGrid" Grid.Row="1" Margin="0,38,0,0" AutoGenerateColumns="False" IsReadOnly="False"
                           CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                           SelectionMode="Single" SelectionUnit="FullRow" SelectionChanged="ScheduleDataGrid_SelectionChanged"
                           ItemsSource="{Binding CurrentSchedules}">
@@ -78,14 +73,14 @@
             </Grid>
         </GroupBox>
 
-        <Border Grid.Row="4" Margin="0,16,0,0" Padding="16" CornerRadius="6"
+        <Border Grid.Row="3" Margin="0,16,0,0" Padding="16" CornerRadius="6"
                 Background="{DynamicResource MaterialDesignCardBackground}">
             <Grid DataContext="{Binding SelectedSchedule}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Text="編集" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
                 <Grid Grid.Row="1" IsEnabled="{Binding ., FallbackValue=False}">
@@ -125,7 +120,7 @@
                 <Grid Grid.Row="3" Margin="0,16,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="240"/>
+                        <ColumnDefinition Width="260"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
@@ -139,7 +134,7 @@
                                 Click="AddTagButton_Click" Margin="0,8,0,0" Padding="12,6"/>
                     </StackPanel>
                     <TextBlock Grid.Column="2" Text="選択中" FontWeight="SemiBold" VerticalAlignment="Top" Margin="20,8,10,0"/>
-                    <ScrollViewer Grid.Column="3" MaxHeight="85" VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer Grid.Column="3" MaxHeight="120" VerticalScrollBarVisibility="Auto">
                         <ItemsControl ItemsSource="{Binding DataContext.SelectedTags, RelativeSource={RelativeSource AncestorType=Window}}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -165,7 +160,7 @@
             </Grid>
         </Border>
 
-        <StatusBar Grid.Row="5" Margin="0,16,0,0">
+        <StatusBar Grid.Row="4" Margin="0,16,0,0">
             <StatusBarItem x:Name="ConnectionStatus" Content="接続中…"/>
             <Separator/>
             <StatusBarItem Content="会場を選択 → イベントを選択 → カテゴリ・タグ編集 → 保存" Opacity="0.7"/>
