@@ -25,15 +25,8 @@ public partial class MainWindow : Window
         set
         {
             if (ReferenceEquals(_selectedSchedule, value)) return;
-
             _selectedSchedule = value;
-            SelectedTags.Clear();
-            if (value is not null)
-            {
-                foreach (var tag in value.Tags)
-                    SelectedTags.Add(tag);
-            }
-
+            RefreshEditControls();
             OnPropertyChanged();
         }
     }
@@ -51,6 +44,7 @@ public partial class MainWindow : Window
         ];
 
     public ObservableCollection<string> SelectedTags { get; } = [];
+    private bool _updatingEditControls;
 
     public MainWindow()
     {
@@ -76,7 +70,6 @@ public partial class MainWindow : Window
 
             Venues.Clear();
             foreach (var venue in venues) Venues.Add(venue);
-
             _allSchedules.Clear();
             _allSchedules.AddRange(schedules);
 
@@ -118,8 +111,6 @@ public partial class MainWindow : Window
 
     private void ScheduleDataGrid_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        // MaterialDesign の DataGrid スタイルによってセルクリックが選択処理を奪う場合に備え、
-        // クリックされたセルから DataGridRow を直接取得して選択する。
         if (Debugger.IsAttached)
             Debugger.Break();
 
@@ -127,8 +118,7 @@ public partial class MainWindow : Window
             row.Item is EventSchedule schedule)
         {
             ScheduleDataGrid.SelectedItem = schedule;
-            ScheduleDataGrid.ScrollIntoView(schedule);
-            e.Handled = false;
+            SelectedSchedule = schedule;
         }
     }
 
@@ -140,17 +130,50 @@ public partial class MainWindow : Window
         SelectedSchedule = ScheduleDataGrid.SelectedItem as EventSchedule;
     }
 
-    private static T? FindVisualParent<T>(DependencyObject? child) where T : DependencyObject
+    private void RefreshEditControls()
     {
-        while (child is not null)
+        if (!IsInitialized)
+            return;
+
+        _updatingEditControls = true;
+        try
         {
-            if (child is T parent)
-                return parent;
+            var schedule = _selectedSchedule;
+            EditEventDateText.Text = schedule?.EventDateText ?? "—";
+            EditStartTimeText.Text = schedule?.StartTimeText ?? "—";
+            EditEndTimeText.Text = schedule?.EndTimeText ?? "—";
+            EditTitleText.Text = schedule?.Title ?? "イベントを選択してください";
+            EditCategoryComboBox.SelectedItem = schedule?.Category;
+            EditVerifiedCheckBox.IsChecked = schedule?.Verified ?? false;
 
-            child = VisualTreeHelper.GetParent(child);
+            SelectedTags.Clear();
+            if (schedule is not null)
+            {
+                foreach (var tag in schedule.Tags)
+                    SelectedTags.Add(tag);
+            }
+
+            TagComboBox.SelectedIndex = -1;
         }
+        finally
+        {
+            _updatingEditControls = false;
+        }
+    }
 
-        return null;
+    private void EditCategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_updatingEditControls || _selectedSchedule is null)
+            return;
+        if (EditCategoryComboBox.SelectedItem is string category)
+            _selectedSchedule.Category = category;
+    }
+
+    private void EditVerifiedCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_updatingEditControls || _selectedSchedule is null)
+            return;
+        _selectedSchedule.Verified = EditVerifiedCheckBox.IsChecked == true;
     }
 
     private void AddTagButton_Click(object sender, RoutedEventArgs e)
@@ -160,10 +183,8 @@ public partial class MainWindow : Window
 
         if (!SelectedSchedule.Tags.Contains(tag))
             SelectedSchedule.Tags.Add(tag);
-
         if (!SelectedTags.Contains(tag))
             SelectedTags.Add(tag);
-
         TagComboBox.SelectedIndex = -1;
     }
 
@@ -171,7 +192,6 @@ public partial class MainWindow : Window
     {
         if (SelectedSchedule is null || sender is not Button button || button.Tag is not string tag)
             return;
-
         SelectedSchedule.Tags.Remove(tag);
         SelectedTags.Remove(tag);
     }
@@ -205,6 +225,17 @@ public partial class MainWindow : Window
 
     private void OfficialButton_Click(object sender, RoutedEventArgs e)
         => Process.Start(new ProcessStartInfo(OfficialTimetableUrl) { UseShellExecute = true });
+
+    private static T? FindVisualParent<T>(DependencyObject? child) where T : DependencyObject
+    {
+        while (child is not null)
+        {
+            if (child is T parent)
+                return parent;
+            child = VisualTreeHelper.GetParent(child);
+        }
+        return null;
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
     private void OnPropertyChanged([CallerMemberName] string? name = null)
