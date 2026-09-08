@@ -45,7 +45,7 @@ public partial class MainWindow : Window
             "プロレス", "スポーツ", "空手", "キック", "地域交流", "商店街", "学生・学校",
             "社会人", "青少年", "パフォーマンス", "落語", "三味線", "大正琴", "ご当地ソング",
             "ウクレレ", "幻燈", "ゴスペル", "ディスコ", "カポエイラ", "サンバ", "ブラジル",
-            "能登", "結婚式", "名古屋グランパス", "ライブ", "伝統芸能"
+            "能登", "結婚式", "名古屋グランパス", "ライブ", "伝統芸能", "バンド"
         ];
 
     public ObservableCollection<string> SelectedTags { get; } = [];
@@ -78,7 +78,11 @@ public partial class MainWindow : Window
             Venues.Clear();
             foreach (var venue in venues) Venues.Add(venue);
             _allSchedules.Clear();
-            _allSchedules.AddRange(schedules);
+            foreach (var schedule in schedules)
+            {
+                schedule.PropertyChanged += Schedule_PropertyChanged;
+                _allSchedules.Add(schedule);
+            }
 
             SelectedSchedule = null;
             ConnectionStatus.Content = $"接続済み / 会場 {Venues.Count} / スケジュール {_allSchedules.Count}件 / 自動保存ON";
@@ -90,6 +94,15 @@ public partial class MainWindow : Window
             ConnectionStatus.Content = "接続エラー";
             MessageBox.Show(this, ex.Message, "Supabase接続エラー", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    private void Schedule_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (!_dataLoaded || sender is not EventSchedule schedule)
+            return;
+
+        if (e.PropertyName is nameof(EventSchedule.Genre) or nameof(EventSchedule.Verified))
+            QueueAutoSave(schedule);
     }
 
     private void VenueComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -168,10 +181,7 @@ public partial class MainWindow : Window
         if (_updatingEditControls || _selectedSchedule is null)
             return;
         if (EditGenreComboBox.SelectedItem is string genre)
-        {
             _selectedSchedule.Genre = genre;
-            QueueAutoSave(_selectedSchedule);
-        }
     }
 
     private void EditVerifiedCheckBox_Changed(object sender, RoutedEventArgs e)
@@ -179,7 +189,6 @@ public partial class MainWindow : Window
         if (_updatingEditControls || _selectedSchedule is null)
             return;
         _selectedSchedule.Verified = EditVerifiedCheckBox.IsChecked == true;
-        QueueAutoSave(_selectedSchedule);
     }
 
     private void AddTagButton_Click(object sender, RoutedEventArgs e)
@@ -235,16 +244,11 @@ public partial class MainWindow : Window
         }
         finally
         {
-            ctsDisposeIfCurrent(cancellationToken);
-        }
-    }
-
-    private void ctsDisposeIfCurrent(CancellationToken cancellationToken)
-    {
-        if (_autoSaveCts?.Token == cancellationToken)
-        {
-            _autoSaveCts.Dispose();
-            _autoSaveCts = null;
+            if (_autoSaveCts?.Token == cancellationToken)
+            {
+                _autoSaveCts.Dispose();
+                _autoSaveCts = null;
+            }
         }
     }
 
