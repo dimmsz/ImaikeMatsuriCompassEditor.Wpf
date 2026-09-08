@@ -23,6 +23,7 @@ public partial class MainWindow : Window
         set
         {
             if (ReferenceEquals(_selectedSchedule, value)) return;
+
             _selectedSchedule = value;
             SelectedTags.Clear();
             if (value is not null)
@@ -30,6 +31,7 @@ public partial class MainWindow : Window
                 foreach (var tag in value.Tags)
                     SelectedTags.Add(tag);
             }
+
             OnPropertyChanged();
         }
     }
@@ -93,6 +95,7 @@ public partial class MainWindow : Window
         {
             CurrentSchedules.Clear();
             ScheduleCountText.Text = "-";
+            ScheduleDataGrid.SelectedItem = null;
             SelectedSchedule = null;
             return;
         }
@@ -113,6 +116,11 @@ public partial class MainWindow : Window
 
     private void ScheduleDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        // デバッグ用ブレークポイント。Visual Studioからデバッグ実行すると、
+        // イベント行を選択した瞬間にここで停止する。
+        if (Debugger.IsAttached)
+            Debugger.Break();
+
         SelectedSchedule = ScheduleDataGrid.SelectedItem as EventSchedule;
     }
 
@@ -123,8 +131,10 @@ public partial class MainWindow : Window
 
         if (!SelectedSchedule.Tags.Contains(tag))
             SelectedSchedule.Tags.Add(tag);
+
         if (!SelectedTags.Contains(tag))
             SelectedTags.Add(tag);
+
         TagComboBox.SelectedIndex = -1;
     }
 
