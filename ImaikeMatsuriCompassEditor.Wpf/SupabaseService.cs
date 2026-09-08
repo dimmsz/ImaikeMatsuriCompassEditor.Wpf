@@ -1,3 +1,4 @@
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -54,6 +55,6 @@ public sealed class SupabaseService
         throw new HttpRequestException($"Supabase API error {(int)response.StatusCode}: {body}");
     }
 
-    private sealed record VenueRow(long Id, [property: JsonPropertyName("venue_no")] short VenueNo, string Name, string? Location, double Latitude, double Longitude);
-    private sealed record ScheduleRow(long Id, [property: JsonPropertyName("event_date")] string EventDate, [property: JsonPropertyName("start_time")] string StartTime, [property: JsonPropertyName("end_time")] string? EndTime, string Title, [property: JsonPropertyName("venue_id")] long VenueId, string? Description, int SortOrder, string? Category, bool Verified);
+    private sealed record VenueRow(long Id, [property: JsonPropertyName("venue_no")] short VenueNo, string Name, string? Location, double Latitude, double Longitude, [property: JsonPropertyName("sort_order")] int SortOrder);
+    private sealed record ScheduleRow(long Id, [property: JsonPropertyName("event_date")] string EventDate, [property: JsonPropertyName("start_time")] string StartTime, [property: JsonPropertyName("end_time")] string? EndTime, string Title, [property: JsonPropertyName("venue_id")] long VenueId, string? Description, [property: JsonPropertyName("sort_order")] int SortOrder, string? Category, bool Verified);
 }
