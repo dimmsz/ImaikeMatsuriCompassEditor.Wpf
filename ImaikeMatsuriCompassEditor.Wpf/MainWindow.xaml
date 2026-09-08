@@ -27,10 +27,6 @@
                 <Button Content="保存" Style="{StaticResource MaterialDesignRaisedButton}" x:Name="SaveButton" Click="SaveButton_Click" Margin="0,0,8,0" Padding="20,8"/>
                 <Button Content="公式タイムテーブル" Style="{StaticResource MaterialDesignOutlinedButton}" Click="OfficialButton_Click" Padding="16,8"/>
             </StackPanel>
-            <Border Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="14,8" CornerRadius="4"
-                    Background="{DynamicResource PrimaryHueMidBrush}" Margin="0,0,0,0">
-                <TextBlock Text="2026" Foreground="White" FontSize="18" FontWeight="SemiBold" Visibility="Collapsed"/>
-            </Border>
         </Grid>
 
         <GroupBox Grid.Row="1" Header="タイムスケジュール" Style="{StaticResource MaterialDesignCardGroupBox}">
