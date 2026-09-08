@@ -42,7 +42,7 @@ public sealed class SupabaseService
     {
         var payload = JsonSerializer.Serialize(new
         {
-            category = schedule.Category,
+            category = schedule.Genre,
             verified = schedule.Verified,
             tags = schedule.Tags.ToArray()
         }, _json);
