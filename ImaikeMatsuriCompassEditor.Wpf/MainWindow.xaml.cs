@@ -111,9 +111,6 @@ public partial class MainWindow : Window
 
     private void ScheduleDataGrid_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        if (Debugger.IsAttached)
-            Debugger.Break();
-
         if (FindVisualParent<DataGridRow>(e.OriginalSource as DependencyObject) is DataGridRow row &&
             row.Item is EventSchedule schedule)
         {
@@ -124,9 +121,6 @@ public partial class MainWindow : Window
 
     private void ScheduleDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (Debugger.IsAttached)
-            Debugger.Break();
-
         SelectedSchedule = ScheduleDataGrid.SelectedItem as EventSchedule;
     }
 
