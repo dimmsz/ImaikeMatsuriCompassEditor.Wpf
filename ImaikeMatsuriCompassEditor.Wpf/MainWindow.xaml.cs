@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,35 +9,51 @@ namespace ImaikeMatsuriCompassEditor.Wpf;
 
 public partial class MainWindow : Window
 {
-    public ObservableCollection<Venue> Venues { get; } = new();
-    public ObservableCollection<EventSchedule> CurrentSchedules { get; } = new();
+    private const string OfficialTimetableUrl = "https://www.imaike55.com/%E4%BB%8A%E6%B1%A0%E3%81%BE%E3%81%A4%E3%82%8A2026%E3%82%BF%E3%82%A4%E3%83%A0%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB";
+    private readonly SupabaseService _supabase = new();
+    private readonly List<EventSchedule> _allSchedules = [];
 
-    private readonly List<EventSchedule> _allSchedules = new()
-    {
-        new(1, new DateOnly(2026, 9, 20), new TimeOnly(10, 0), null, "サンプルイベント1", 1),
-        new(2, new DateOnly(2026, 9, 20), new TimeOnly(11, 0), null, "サンプルイベント2", 1),
-        new(3, new DateOnly(2026, 9, 20), new TimeOnly(12, 0), null, "サンプルイベント3", 2),
-        new(4, new DateOnly(2026, 9, 21), new TimeOnly(10, 30), null, "サンプルイベント4", 2)
-    };
+    public ObservableCollection<Venue> Venues { get; } = [];
+    public ObservableCollection<EventSchedule> CurrentSchedules { get; } = [];
+    public ObservableCollection<string> Categories { get; } =
+    ["音楽", "ダンス", "大道芸", "演劇", "トーク", "伝統芸能", "紙芝居", "マジック", "その他"];
 
     public MainWindow()
     {
         InitializeComponent();
-
-        Venues.Add(new Venue(1, "今池ガスホール"));
-        Venues.Add(new Venue(2, "ストリートコーナーパラダイス"));
-        Venues.Add(new Venue(3, "東南会場"));
-        Venues.Add(new Venue(4, "一本裏会場"));
-        Venues.Add(new Venue(5, "十六広場"));
-        Venues.Add(new Venue(6, "西南会場"));
-        Venues.Add(new Venue(7, "Imaike Park会場"));
-        Venues.Add(new Venue(8, "ノースアイランド"));
-        Venues.Add(new Venue(9, "4丁目Pit"));
-        Venues.Add(new Venue(10, "下町ネバーランド"));
-
         VenueListBox.ItemsSource = Venues;
         ScheduleDataGrid.ItemsSource = CurrentSchedules;
-        ConnectionStatus.Content = "ローカルデータ表示中";
+        Loaded += MainWindow_Loaded;
+    }
+
+    private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        Loaded -= MainWindow_Loaded;
+        await ReloadAsync();
+    }
+
+    private async Task ReloadAsync()
+    {
+        try
+        {
+            ConnectionStatus.Content = "Supabase接続中…";
+            var venues = await _supabase.GetVenuesAsync();
+            var schedules = await _supabase.GetSchedulesAsync();
+
+            Venues.Clear();
+            foreach (var venue in venues) Venues.Add(venue);
+
+            _allSchedules.Clear();
+            _allSchedules.AddRange(schedules);
+
+            ConnectionStatus.Content = $"接続済み / 会場 {Venues.Count} / スケジュール {_allSchedules.Count}件";
+            if (Venues.Count > 0) VenueListBox.SelectedIndex = 0;
+        }
+        catch (Exception ex)
+        {
+            ConnectionStatus.Content = "接続エラー";
+            MessageBox.Show(this, ex.Message, "Supabase接続エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void VenueListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -49,19 +66,41 @@ public partial class MainWindow : Window
         }
 
         CurrentSchedules.Clear();
-        foreach (var schedule in _allSchedules
-                     .Where(x => x.VenueId == venue.Id)
-                     .OrderBy(x => x.EventDate)
-                     .ThenBy(x => x.StartTime))
-        {
+        foreach (var schedule in _allSchedules.Where(x => x.VenueId == venue.Id).OrderBy(x => x.EventDate).ThenBy(x => x.StartTime))
             CurrentSchedules.Add(schedule);
-        }
 
         ScheduleHeaderText.Text = $"{venue.Name} — {CurrentSchedules.Count}件";
     }
+
+    private async void SaveButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            ScheduleDataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
+            ScheduleDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
+            SaveButton.IsEnabled = false;
+            ConnectionStatus.Content = "保存中…";
+
+            foreach (var schedule in _allSchedules)
+                await _supabase.UpdateScheduleAsync(schedule);
+
+            ConnectionStatus.Content = $"保存完了 / { _allSchedules.Count }件";
+        }
+        catch (Exception ex)
+        {
+            ConnectionStatus.Content = "保存エラー";
+            MessageBox.Show(this, ex.Message, "保存エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally { SaveButton.IsEnabled = true; }
+    }
+
+    private async void ReloadButton_Click(object sender, RoutedEventArgs e) => await ReloadAsync();
+
+    private void OfficialButton_Click(object sender, RoutedEventArgs e)
+        => Process.Start(new ProcessStartInfo(OfficialTimetableUrl) { UseShellExecute = true });
 }
 
-public sealed record Venue(long Id, string Name);
+public sealed record Venue(long Id, short VenueNo, string Name, string? Location = null, double Latitude = 0, double Longitude = 0);
 
 public sealed class EventSchedule : INotifyPropertyChanged
 {
@@ -71,44 +110,14 @@ public sealed class EventSchedule : INotifyPropertyChanged
     public TimeOnly? EndTime { get; }
     public string Title { get; }
     public long VenueId { get; }
-
-    private string _category = string.Empty;
+    public string Description { get; }
+    private string _category;
     private bool _verified;
+    public string Category { get => _category; set { if (_category == value) return; _category = value; OnPropertyChanged(); } }
+    public bool Verified { get => _verified; set { if (_verified == value) return; _verified = value; OnPropertyChanged(); } }
 
-    public string Category
-    {
-        get => _category;
-        set
-        {
-            if (_category == value) return;
-            _category = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool Verified
-    {
-        get => _verified;
-        set
-        {
-            if (_verified == value) return;
-            _verified = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public EventSchedule(long id, DateOnly eventDate, TimeOnly startTime, TimeOnly? endTime, string title, long venueId)
-    {
-        Id = id;
-        EventDate = eventDate;
-        StartTime = startTime;
-        EndTime = endTime;
-        Title = title;
-        VenueId = venueId;
-    }
-
+    public EventSchedule(long id, DateOnly eventDate, TimeOnly startTime, TimeOnly? endTime, string title, long venueId, string description, string category, bool verified)
+    { Id = id; EventDate = eventDate; StartTime = startTime; EndTime = endTime; Title = title; VenueId = venueId; Description = description; _category = category; _verified = verified; }
     public event PropertyChangedEventHandler? PropertyChanged;
-
-    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    private void OnPropertyChanged([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }
