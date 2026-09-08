@@ -47,7 +47,7 @@ public partial class MainWindow : Window
             _allSchedules.AddRange(schedules);
 
             ConnectionStatus.Content = $"接続済み / 会場 {Venues.Count} / スケジュール {_allSchedules.Count}件";
-            if (Venues.Count > 0) VenueComboBox.SelectedIndex = 0;
+            VenueComboBox.SelectedIndex = Venues.Count > 0 ? 0 : -1;
         }
         catch (Exception ex)
         {
@@ -62,6 +62,7 @@ public partial class MainWindow : Window
         {
             CurrentSchedules.Clear();
             ScheduleHeaderText.Text = "会場を選択してください。";
+            ScheduleCountText.Text = "-";
             return;
         }
 
@@ -74,7 +75,8 @@ public partial class MainWindow : Window
             CurrentSchedules.Add(schedule);
         }
 
-        ScheduleHeaderText.Text = $"{venue.Name} — {CurrentSchedules.Count}件";
+        ScheduleHeaderText.Text = $"{venue.Name} — タイムスケジュール";
+        ScheduleCountText.Text = CurrentSchedules.Count.ToString();
     }
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
