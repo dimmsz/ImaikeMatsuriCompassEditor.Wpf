@@ -8,11 +8,13 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="0,0,0,16">
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,18">
             <StackPanel>
                 <TextBlock Text="今池まつり Compass Editor" FontSize="28" FontWeight="Bold"/>
                 <TextBlock Text="2026 タイムテーブル確認・カテゴリ編集" Opacity="0.65" Margin="0,2,0,0"/>
@@ -23,64 +25,65 @@
             </Border>
         </Grid>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
-            <Button Content="再読み込み" Style="{StaticResource MaterialDesignOutlinedButton}" Click="ReloadButton_Click" Margin="0,0,8,0" Padding="16,8"/>
-            <Button Content="保存" Style="{StaticResource MaterialDesignRaisedButton}" x:Name="SaveButton" Click="SaveButton_Click" Margin="0,0,8,0" Padding="18,8"/>
-            <Button Content="公式タイムテーブル" Style="{StaticResource MaterialDesignOutlinedButton}" Click="OfficialButton_Click" Padding="16,8"/>
-        </StackPanel>
+        <!-- Global actions -->
+        <DockPanel Grid.Row="1" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="再読み込み" Style="{StaticResource MaterialDesignOutlinedButton}" Click="ReloadButton_Click" Margin="0,0,8,0" Padding="16,8"/>
+                <Button Content="保存" Style="{StaticResource MaterialDesignRaisedButton}" x:Name="SaveButton" Click="SaveButton_Click" Margin="0,0,8,0" Padding="20,8"/>
+                <Button Content="公式タイムテーブル" Style="{StaticResource MaterialDesignOutlinedButton}" Click="OfficialButton_Click" Padding="16,8"/>
+            </StackPanel>
+        </DockPanel>
 
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="320"/>
-                <ColumnDefinition Width="16"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <!-- Selection toolbar: venue is now the primary selector -->
+        <Border Grid.Row="2" Padding="16,12" Margin="0,0,0,16" CornerRadius="6"
+                Background="{DynamicResource MaterialDesignCardBackground}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="28"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="会場" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <ComboBox x:Name="VenueComboBox" Grid.Column="1" ItemsSource="{Binding Venues}" DisplayMemberPath="Name"
+                          materialDesign:HintAssist.Hint="会場を選択" SelectionChanged="VenueComboBox_SelectionChanged"
+                          Padding="8" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="3" Text="対象件数" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <TextBlock x:Name="ScheduleCountText" Grid.Column="4" Text="-" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="5" Text="時刻は24時間表記（HH:mm）" Opacity="0.6" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            </Grid>
+        </Border>
 
-            <GroupBox Grid.Column="0" Header="確認対象" Style="{StaticResource MaterialDesignCardGroupBox}">
-                <Grid Margin="12">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBox Grid.Row="0" materialDesign:HintAssist.Hint="会場名を検索" Margin="0,0,0,10" Padding="8"
-                             materialDesign:TextFieldAssist.HasClearButton="True"/>
-                    <ComboBox x:Name="VenueComboBox" Grid.Row="1" ItemsSource="{Binding Venues}" SelectedIndex="0"
-                              DisplayMemberPath="Name" materialDesign:HintAssist.Hint="会場を選択"
-                              SelectionChanged="VenueComboBox_SelectionChanged" Padding="8" VerticalAlignment="Top"/>
-                </Grid>
-            </GroupBox>
+        <!-- Main editor -->
+        <GroupBox Grid.Row="3" Header="タイムスケジュール" Style="{StaticResource MaterialDesignCardGroupBox}">
+            <Grid Margin="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock x:Name="ScheduleHeaderText" Text="会場を選択してください。" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                <DataGrid x:Name="ScheduleDataGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="False"
+                          CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                          SelectionMode="Single" SelectionUnit="FullRow" ItemsSource="{Binding CurrentSchedules}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="日付" Binding="{Binding EventDateText, Mode=OneWay}" Width="120"/>
+                        <DataGridTextColumn Header="開始" Binding="{Binding StartTimeText, Mode=OneWay}" Width="80"/>
+                        <DataGridTextColumn Header="終了" Binding="{Binding EndTimeText, Mode=OneWay}" Width="80"/>
+                        <DataGridTextColumn Header="タイトル" Binding="{Binding Title, Mode=OneWay}" Width="*"/>
+                        <DataGridComboBoxColumn Header="カテゴリ" SelectedItemBinding="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
+                                                ItemsSource="{Binding DataContext.Categories, RelativeSource={RelativeSource AncestorType=Window}}" Width="130"/>
+                        <DataGridCheckBoxColumn Header="確認済" Binding="{Binding Verified, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
 
-            <GroupBox Grid.Column="2" Header="タイムスケジュール確認" Style="{StaticResource MaterialDesignCardGroupBox}">
-                <Grid Margin="12">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <DockPanel Grid.Row="0" Margin="0,0,0,12">
-                        <TextBlock x:Name="ScheduleHeaderText" Text="会場を選択してください。" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        <TextBlock DockPanel.Dock="Right" Text="時刻は24時間表記" Opacity="0.6" VerticalAlignment="Center"/>
-                    </DockPanel>
-                    <DataGrid x:Name="ScheduleDataGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="False"
-                              CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                              SelectionMode="Single" SelectionUnit="FullRow" ItemsSource="{Binding CurrentSchedules}">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="日付" Binding="{Binding EventDateText, Mode=OneWay}" Width="110"/>
-                            <DataGridTextColumn Header="開始" Binding="{Binding StartTimeText, Mode=OneWay}" Width="80"/>
-                            <DataGridTextColumn Header="終了" Binding="{Binding EndTimeText, Mode=OneWay}" Width="80"/>
-                            <DataGridTextColumn Header="タイトル" Binding="{Binding Title, Mode=OneWay}" Width="*"/>
-                            <DataGridComboBoxColumn Header="カテゴリ" SelectedItemBinding="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
-                                                    ItemsSource="{Binding DataContext.Categories, RelativeSource={RelativeSource AncestorType=Window}}" Width="130"/>
-                            <DataGridCheckBoxColumn Header="確認済" Binding="{Binding Verified, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
-            </GroupBox>
-        </Grid>
-
-        <StatusBar Grid.Row="3" Margin="0,16,0,0">
+        <StatusBar Grid.Row="4" Margin="0,16,0,0">
             <StatusBarItem x:Name="ConnectionStatus" Content="接続中…"/>
             <Separator/>
-            <StatusBarItem Content="カテゴリと確認済は編集後に保存できます" Opacity="0.7"/>
+            <StatusBarItem Content="会場を選択 → タイムテーブル確認 → カテゴリ設定 → 保存" Opacity="0.7"/>
         </StatusBar>
     </Grid>
 </Window>
