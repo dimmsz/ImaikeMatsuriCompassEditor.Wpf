@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace ImaikeMatsuriCompassEditor.Wpf;
 
@@ -114,14 +116,41 @@ public partial class MainWindow : Window
         SelectedSchedule = null;
     }
 
+    private void ScheduleDataGrid_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        // MaterialDesign の DataGrid スタイルによってセルクリックが選択処理を奪う場合に備え、
+        // クリックされたセルから DataGridRow を直接取得して選択する。
+        if (Debugger.IsAttached)
+            Debugger.Break();
+
+        if (FindVisualParent<DataGridRow>(e.OriginalSource as DependencyObject) is DataGridRow row &&
+            row.Item is EventSchedule schedule)
+        {
+            ScheduleDataGrid.SelectedItem = schedule;
+            ScheduleDataGrid.ScrollIntoView(schedule);
+            e.Handled = false;
+        }
+    }
+
     private void ScheduleDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        // デバッグ用ブレークポイント。Visual Studioからデバッグ実行すると、
-        // イベント行を選択した瞬間にここで停止する。
         if (Debugger.IsAttached)
             Debugger.Break();
 
         SelectedSchedule = ScheduleDataGrid.SelectedItem as EventSchedule;
+    }
+
+    private static T? FindVisualParent<T>(DependencyObject? child) where T : DependencyObject
+    {
+        while (child is not null)
+        {
+            if (child is T parent)
+                return parent;
+
+            child = VisualTreeHelper.GetParent(child);
+        }
+
+        return null;
     }
 
     private void AddTagButton_Click(object sender, RoutedEventArgs e)
