@@ -16,12 +16,12 @@ public partial class MainWindow : Window
     public ObservableCollection<Venue> Venues { get; } = [];
     public ObservableCollection<EventSchedule> CurrentSchedules { get; } = [];
     public ObservableCollection<string> Categories { get; } =
-    ["音楽", "ダンス", "大道芸", "演劇", "トーク", "伝統芸能", "紙芝居", "マジック", "その他"];
+        ["音楽", "ダンス", "大道芸", "演劇", "トーク", "伝統芸能", "紙芝居", "マジック", "その他"];
 
     public MainWindow()
     {
         InitializeComponent();
-        VenueListBox.ItemsSource = Venues;
+        DataContext = this;
         ScheduleDataGrid.ItemsSource = CurrentSchedules;
         Loaded += MainWindow_Loaded;
     }
@@ -47,7 +47,7 @@ public partial class MainWindow : Window
             _allSchedules.AddRange(schedules);
 
             ConnectionStatus.Content = $"接続済み / 会場 {Venues.Count} / スケジュール {_allSchedules.Count}件";
-            if (Venues.Count > 0) VenueListBox.SelectedIndex = 0;
+            if (Venues.Count > 0) VenueComboBox.SelectedIndex = 0;
         }
         catch (Exception ex)
         {
@@ -56,9 +56,9 @@ public partial class MainWindow : Window
         }
     }
 
-    private void VenueListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void VenueComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (VenueListBox.SelectedItem is not Venue venue)
+        if (VenueComboBox.SelectedItem is not Venue venue)
         {
             CurrentSchedules.Clear();
             ScheduleHeaderText.Text = "会場を選択してください。";
@@ -66,8 +66,13 @@ public partial class MainWindow : Window
         }
 
         CurrentSchedules.Clear();
-        foreach (var schedule in _allSchedules.Where(x => x.VenueId == venue.Id).OrderBy(x => x.EventDate).ThenBy(x => x.StartTime))
+        foreach (var schedule in _allSchedules
+                     .Where(x => x.VenueId == venue.Id)
+                     .OrderBy(x => x.EventDate)
+                     .ThenBy(x => x.StartTime))
+        {
             CurrentSchedules.Add(schedule);
+        }
 
         ScheduleHeaderText.Text = $"{venue.Name} — {CurrentSchedules.Count}件";
     }
@@ -84,14 +89,17 @@ public partial class MainWindow : Window
             foreach (var schedule in _allSchedules)
                 await _supabase.UpdateScheduleAsync(schedule);
 
-            ConnectionStatus.Content = $"保存完了 / { _allSchedules.Count }件";
+            ConnectionStatus.Content = $"保存完了 / {_allSchedules.Count}件";
         }
         catch (Exception ex)
         {
             ConnectionStatus.Content = "保存エラー";
             MessageBox.Show(this, ex.Message, "保存エラー", MessageBoxButton.OK, MessageBoxImage.Error);
         }
-        finally { SaveButton.IsEnabled = true; }
+        finally
+        {
+            SaveButton.IsEnabled = true;
+        }
     }
 
     private async void ReloadButton_Click(object sender, RoutedEventArgs e) => await ReloadAsync();
@@ -108,6 +116,9 @@ public sealed class EventSchedule : INotifyPropertyChanged
     public DateOnly EventDate { get; }
     public TimeOnly StartTime { get; }
     public TimeOnly? EndTime { get; }
+    public string EventDateText => EventDate.ToString("yyyy-MM-dd");
+    public string StartTimeText => StartTime.ToString("HH:mm");
+    public string EndTimeText => EndTime?.ToString("HH:mm") ?? "";
     public string Title { get; }
     public long VenueId { get; }
     public string Description { get; }
@@ -117,7 +128,19 @@ public sealed class EventSchedule : INotifyPropertyChanged
     public bool Verified { get => _verified; set { if (_verified == value) return; _verified = value; OnPropertyChanged(); } }
 
     public EventSchedule(long id, DateOnly eventDate, TimeOnly startTime, TimeOnly? endTime, string title, long venueId, string description, string category, bool verified)
-    { Id = id; EventDate = eventDate; StartTime = startTime; EndTime = endTime; Title = title; VenueId = venueId; Description = description; _category = category; _verified = verified; }
+    {
+        Id = id;
+        EventDate = eventDate;
+        StartTime = startTime;
+        EndTime = endTime;
+        Title = title;
+        VenueId = venueId;
+        Description = description;
+        _category = category;
+        _verified = verified;
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
-    private void OnPropertyChanged([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    private void OnPropertyChanged([CallerMemberName] string? name = null)
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }
