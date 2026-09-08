@@ -2,18 +2,18 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        Title="今池まつり Compass Editor" Width="1250" Height="800" MinWidth="950" MinHeight="600"
+        Title="今池まつり Compass Editor" Width="1250" Height="900" MinWidth="950" MinHeight="700"
         Background="{DynamicResource MaterialDesignPaper}">
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="2*" MinHeight="280"/>
+            <RowDefinition Height="Auto" MinHeight="190"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
         <Grid Grid.Row="0" Margin="0,0,0,18">
             <StackPanel>
                 <TextBlock Text="今池まつり Compass Editor" FontSize="28" FontWeight="Bold"/>
@@ -25,7 +25,6 @@
             </Border>
         </Grid>
 
-        <!-- Global actions -->
         <DockPanel Grid.Row="1" Margin="0,0,0,12">
             <StackPanel Orientation="Horizontal">
                 <Button Content="再読み込み" Style="{StaticResource MaterialDesignOutlinedButton}" Click="ReloadButton_Click" Margin="0,0,8,0" Padding="16,8"/>
@@ -34,7 +33,6 @@
             </StackPanel>
         </DockPanel>
 
-        <!-- Selection toolbar: venue is now the primary selector -->
         <Border Grid.Row="2" Padding="16,12" Margin="0,0,0,16" CornerRadius="6"
                 Background="{DynamicResource MaterialDesignCardBackground}">
             <Grid>
@@ -56,7 +54,6 @@
             </Grid>
         </Border>
 
-        <!-- Main editor -->
         <GroupBox Grid.Row="3" Header="タイムスケジュール" Style="{StaticResource MaterialDesignCardGroupBox}">
             <Grid Margin="12">
                 <Grid.RowDefinitions>
@@ -66,7 +63,8 @@
                 <TextBlock x:Name="ScheduleHeaderText" Text="会場を選択してください。" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
                 <DataGrid x:Name="ScheduleDataGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="False"
                           CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                          SelectionMode="Single" SelectionUnit="FullRow" ItemsSource="{Binding CurrentSchedules}">
+                          SelectionMode="Single" SelectionUnit="FullRow" SelectionChanged="ScheduleDataGrid_SelectionChanged"
+                          ItemsSource="{Binding CurrentSchedules}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="日付" Binding="{Binding EventDateText, Mode=OneWay}" Width="120"/>
                         <DataGridTextColumn Header="開始" Binding="{Binding StartTimeText, Mode=OneWay}" Width="80"/>
@@ -80,10 +78,56 @@
             </Grid>
         </GroupBox>
 
-        <StatusBar Grid.Row="4" Margin="0,16,0,0">
+        <Border Grid.Row="4" Margin="0,16,0,0" Padding="16" CornerRadius="6"
+                Background="{DynamicResource MaterialDesignCardBackground}">
+            <Grid DataContext="{Binding SelectedSchedule}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="編集" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                <Grid Grid.Row="1" IsEnabled="{Binding ., FallbackValue=False}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="24"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="24"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="日付" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Grid.Column="1" Text="{Binding EventDateText, TargetNullValue=—}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="3" Text="開始" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Grid.Column="4" Text="{Binding StartTimeText, TargetNullValue=—}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="6" Text="終了" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Grid.Column="7" Text="{Binding EndTimeText, TargetNullValue=—}" VerticalAlignment="Center"/>
+                </Grid>
+                <Grid Grid.Row="2" Margin="0,14,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="24"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="タイトル" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Title, TargetNullValue=イベントを選択してください}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Column="2" Text="カテゴリ" FontWeight="SemiBold" VerticalAlignment="Center" Margin="20,0,10,0"/>
+                    <ComboBox Grid.Column="3" ItemsSource="{Binding DataContext.Categories, RelativeSource={RelativeSource AncestorType=Window}}"
+                              SelectedItem="{Binding Category, UpdateSourceTrigger=PropertyChanged}" Padding="6"/>
+                    <CheckBox Grid.Column="5" Content="確認済" IsChecked="{Binding Verified, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <StatusBar Grid.Row="5" Margin="0,16,0,0">
             <StatusBarItem x:Name="ConnectionStatus" Content="接続中…"/>
             <Separator/>
-            <StatusBarItem Content="会場を選択 → タイムテーブル確認 → カテゴリ設定 → 保存" Opacity="0.7"/>
+            <StatusBarItem Content="会場を選択 → イベントを選択 → 編集 → 保存" Opacity="0.7"/>
         </StatusBar>
     </Grid>
 </Window>
