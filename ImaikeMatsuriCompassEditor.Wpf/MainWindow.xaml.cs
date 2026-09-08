@@ -19,6 +19,17 @@ public partial class MainWindow : Window
     public ObservableCollection<string> Categories { get; } =
         ["音楽", "ダンス", "大道芸", "演劇", "トーク", "伝統芸能", "紙芝居", "マジック", "その他"];
 
+    public ObservableCollection<string> AvailableTags { get; } =
+        [
+            "DJ", "ジャズ", "ロック", "ブルース", "パンク", "ソウル・R&B", "ラテン",
+            "ワールド音楽", "合唱", "和楽器", "フラメンコ", "沖縄", "韓国",
+            "ダンススクール", "紙芝居", "演劇", "一人芝居", "詩朗読", "トーク", "マジック",
+            "大道芸", "クラウン", "アクロバット", "盆踊り", "プロレス", "スポーツ",
+            "地域交流", "商店街", "学生・学校", "社会人", "青少年", "パフォーマンス"
+        ];
+
+    public ObservableCollection<string> SelectedTags { get; } = [];
+
     public MainWindow()
     {
         InitializeComponent();
@@ -47,8 +58,7 @@ public partial class MainWindow : Window
             _allSchedules.Clear();
             _allSchedules.AddRange(schedules);
 
-            SelectedSchedule = null;
-            OnPropertyChanged(nameof(SelectedSchedule));
+            SetSelectedSchedule(null);
             ConnectionStatus.Content = $"接続済み / 会場 {Venues.Count} / スケジュール {_allSchedules.Count}件";
             VenueComboBox.SelectedIndex = Venues.Count > 0 ? 0 : -1;
         }
@@ -92,7 +102,36 @@ public partial class MainWindow : Window
     private void SetSelectedSchedule(EventSchedule? schedule)
     {
         SelectedSchedule = schedule;
+        SelectedTags.Clear();
+        if (schedule is not null)
+        {
+            foreach (var tag in schedule.Tags)
+                SelectedTags.Add(tag);
+        }
         OnPropertyChanged(nameof(SelectedSchedule));
+    }
+
+    private void AddTagButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedSchedule is null || TagComboBox.SelectedItem is not string tag)
+            return;
+
+        if (!SelectedSchedule.Tags.Contains(tag))
+            SelectedSchedule.Tags.Add(tag);
+
+        if (!SelectedTags.Contains(tag))
+            SelectedTags.Add(tag);
+
+        TagComboBox.SelectedIndex = -1;
+    }
+
+    private void RemoveTagButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedSchedule is null || sender is not Button button || button.Tag is not string tag)
+            return;
+
+        SelectedSchedule.Tags.Remove(tag);
+        SelectedTags.Remove(tag);
     }
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -148,8 +187,9 @@ public sealed class EventSchedule : INotifyPropertyChanged
     private bool _verified;
     public string Category { get => _category; set { if (_category == value) return; _category = value; OnPropertyChanged(); } }
     public bool Verified { get => _verified; set { if (_verified == value) return; _verified = value; OnPropertyChanged(); } }
+    public ObservableCollection<string> Tags { get; } = [];
 
-    public EventSchedule(long id, DateOnly eventDate, TimeOnly startTime, TimeOnly? endTime, string title, long venueId, string description, string category, bool verified)
+    public EventSchedule(long id, DateOnly eventDate, TimeOnly startTime, TimeOnly? endTime, string title, long venueId, string description, string category, bool verified, IEnumerable<string>? tags = null)
     {
         Id = id;
         EventDate = eventDate;
@@ -160,6 +200,11 @@ public sealed class EventSchedule : INotifyPropertyChanged
         Description = description;
         _category = category;
         _verified = verified;
+        if (tags is not null)
+        {
+            foreach (var tag in tags.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct())
+                Tags.Add(tag);
+        }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
