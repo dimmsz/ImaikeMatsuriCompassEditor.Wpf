@@ -23,7 +23,6 @@ public partial class MainWindow : Window
         set
         {
             if (ReferenceEquals(_selectedSchedule, value)) return;
-
             _selectedSchedule = value;
             SelectedTags.Clear();
             if (value is not null)
@@ -31,7 +30,6 @@ public partial class MainWindow : Window
                 foreach (var tag in value.Tags)
                     SelectedTags.Add(tag);
             }
-
             OnPropertyChanged();
         }
     }
@@ -109,7 +107,13 @@ public partial class MainWindow : Window
         }
 
         ScheduleCountText.Text = CurrentSchedules.Count.ToString();
+        ScheduleDataGrid.SelectedItem = null;
         SelectedSchedule = null;
+    }
+
+    private void ScheduleDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        SelectedSchedule = ScheduleDataGrid.SelectedItem as EventSchedule;
     }
 
     private void AddTagButton_Click(object sender, RoutedEventArgs e)
@@ -119,10 +123,8 @@ public partial class MainWindow : Window
 
         if (!SelectedSchedule.Tags.Contains(tag))
             SelectedSchedule.Tags.Add(tag);
-
         if (!SelectedTags.Contains(tag))
             SelectedTags.Add(tag);
-
         TagComboBox.SelectedIndex = -1;
     }
 
