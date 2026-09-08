@@ -15,6 +15,7 @@ public partial class MainWindow : Window
 
     public ObservableCollection<Venue> Venues { get; } = [];
     public ObservableCollection<EventSchedule> CurrentSchedules { get; } = [];
+    public EventSchedule? SelectedSchedule { get; private set; }
     public ObservableCollection<string> Categories { get; } =
         ["音楽", "ダンス", "大道芸", "演劇", "トーク", "伝統芸能", "紙芝居", "マジック", "その他"];
 
@@ -46,6 +47,8 @@ public partial class MainWindow : Window
             _allSchedules.Clear();
             _allSchedules.AddRange(schedules);
 
+            SelectedSchedule = null;
+            OnPropertyChanged(nameof(SelectedSchedule));
             ConnectionStatus.Content = $"接続済み / 会場 {Venues.Count} / スケジュール {_allSchedules.Count}件";
             VenueComboBox.SelectedIndex = Venues.Count > 0 ? 0 : -1;
         }
@@ -63,6 +66,7 @@ public partial class MainWindow : Window
             CurrentSchedules.Clear();
             ScheduleHeaderText.Text = "会場を選択してください。";
             ScheduleCountText.Text = "-";
+            SetSelectedSchedule(null);
             return;
         }
 
@@ -77,6 +81,18 @@ public partial class MainWindow : Window
 
         ScheduleHeaderText.Text = $"{venue.Name} — タイムスケジュール";
         ScheduleCountText.Text = CurrentSchedules.Count.ToString();
+        SetSelectedSchedule(null);
+    }
+
+    private void ScheduleDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        SetSelectedSchedule(ScheduleDataGrid.SelectedItem as EventSchedule);
+    }
+
+    private void SetSelectedSchedule(EventSchedule? schedule)
+    {
+        SelectedSchedule = schedule;
+        OnPropertyChanged(nameof(SelectedSchedule));
     }
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -108,6 +124,10 @@ public partial class MainWindow : Window
 
     private void OfficialButton_Click(object sender, RoutedEventArgs e)
         => Process.Start(new ProcessStartInfo(OfficialTimetableUrl) { UseShellExecute = true });
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+    private void OnPropertyChanged([CallerMemberName] string? name = null)
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }
 
 public sealed record Venue(long Id, short VenueNo, string Name, string? Location = null, double Latitude = 0, double Longitude = 0);
