@@ -21,7 +21,7 @@
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
                 <Button Content="再読み込み" Style="{StaticResource MaterialDesignOutlinedButton}" Click="ReloadButton_Click" Margin="0,0,8,0" Padding="16,8"/>
-                <Button Content="保存" Style="{StaticResource MaterialDesignRaisedButton}" x:Name="SaveButton" Click="SaveButton_Click" Margin="0,0,8,0" Padding="20,8"/>
+                <Button Content="全件保存" Style="{StaticResource MaterialDesignRaisedButton}" x:Name="SaveButton" Click="SaveButton_Click" Margin="0,0,8,0" Padding="20,8" ToolTip="現在の全スケジュールを明示的に保存します"/>
                 <Button Content="公式タイムテーブル" Style="{StaticResource MaterialDesignOutlinedButton}" Click="OfficialButton_Click" Padding="16,8"/>
             </StackPanel>
         </Grid>
@@ -73,7 +73,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="イベント情報" FontSize="18" FontWeight="SemiBold"/>
-                        <TextBlock Text="選択したイベントのジャンル・タグを設定します" FontSize="12" Opacity="0.6" Margin="0,1,0,0"/>
+                        <TextBlock Text="選択したイベントのジャンル・タグを設定します（変更は自動保存）" FontSize="12" Opacity="0.6" Margin="0,1,0,0"/>
                     </StackPanel>
                     <CheckBox x:Name="EditVerifiedCheckBox" Grid.Column="1" Content="確認済み"
                               FontWeight="SemiBold" VerticalAlignment="Center"
@@ -81,7 +81,7 @@
                 </Grid>
 
                 <Border Grid.Row="1" Padding="10" CornerRadius="6"
-                        BorderBrush="#D0D0D0" BorderThickness="1"
+                        BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1"
                         Background="{DynamicResource MaterialDesignPaper}">
                     <Grid>
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
@@ -144,23 +144,24 @@
                     </Grid>
                     <TextBlock Grid.Column="2" Text="設定済みタグ" FontWeight="SemiBold"
                                VerticalAlignment="Top" Margin="18,8,10,0"/>
-                    <Border Grid.Column="3" Background="#F5F5F5" BorderBrush="#D0D0D0" BorderThickness="1"
-                            CornerRadius="4" Padding="8,7" MinHeight="42" VerticalAlignment="Top">
-                        <ScrollViewer MaxHeight="72" Focusable="False" VerticalScrollBarVisibility="Auto">
+                    <Border Grid.Column="3" Padding="8" MinHeight="46" MaxHeight="86"
+                            Background="#F5F5F7" BorderBrush="#D0D3DA" BorderThickness="1" CornerRadius="5"
+                            VerticalAlignment="Top">
+                        <ScrollViewer MaxHeight="68" VerticalScrollBarVisibility="Auto" Focusable="False">
                             <ItemsControl ItemsSource="{Binding SelectedTags}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Margin="0,0,6,6" Padding="9,4" CornerRadius="12"
-                                                Background="#E8EAF6" BorderBrush="#9FA8DA" BorderThickness="1">
+                                        <Border Margin="0,0,6,6" Padding="8,4" CornerRadius="14"
+                                                Background="#E8EAF6" BorderBrush="#C5CAE9" BorderThickness="1">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="#" Foreground="#3949AB" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="12"/>
-                                                <TextBlock Text="{Binding}" Foreground="#263238" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding}" Foreground="#263238" VerticalAlignment="Center" FontSize="12"/>
                                                 <Button Content="×" Tag="{Binding}" Click="RemoveTagButton_Click"
                                                         Margin="5,0,0,0" Padding="2,0" MinWidth="20" MinHeight="20"
-                                                        Foreground="#5C6BC0" Background="Transparent" BorderThickness="0"/>
+                                                        Foreground="#3949AB" Background="Transparent" BorderThickness="0"/>
                                             </StackPanel>
                                         </Border>
                                     </DataTemplate>
@@ -174,7 +175,7 @@
 
         <StatusBar Grid.Row="3" Margin="0,14,0,0">
             <StatusBarItem x:Name="ConnectionStatus" Content="接続中…"/><Separator/>
-            <StatusBarItem Content="会場を選択 → イベントを選択 → ジャンル・タグ編集 → 確認済みにして保存" Opacity="0.7"/>
+            <StatusBarItem Content="変更は自動保存 / 会場を選択 → イベントを選択 → ジャンル・タグ編集 → 確認済み" Opacity="0.7"/>
         </StatusBar>
     </Grid>
 </Window>
