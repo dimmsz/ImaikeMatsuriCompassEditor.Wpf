@@ -31,16 +31,19 @@ public partial class MainWindow : Window
         }
     }
 
-    public ObservableCollection<string> Categories { get; } =
-        ["音楽", "ダンス", "大道芸", "演劇", "トーク", "伝統芸能", "紙芝居", "マジック", "その他"];
+    public ObservableCollection<string> Genres { get; } =
+        ["音楽", "ダンス", "ステージ", "その他"];
 
     public ObservableCollection<string> AvailableTags { get; } =
         [
             "DJ", "ジャズ", "ロック", "ブルース", "パンク", "ソウル・R&B", "ラテン",
-            "ワールド音楽", "合唱", "和楽器", "フラメンコ", "沖縄", "韓国",
-            "ダンススクール", "紙芝居", "演劇", "一人芝居", "詩朗読", "トーク", "マジック",
-            "大道芸", "クラウン", "アクロバット", "盆踊り", "プロレス", "スポーツ",
-            "地域交流", "商店街", "学生・学校", "社会人", "青少年", "パフォーマンス"
+            "ワールド音楽", "合唱", "和楽器", "フラメンコ", "沖縄", "韓国", "打楽器",
+            "三線", "ダンススクール", "バレエ", "紙芝居", "演劇", "一人芝居", "詩朗読",
+            "トーク", "マジック", "大道芸", "クラウン", "アクロバット", "盆踊り",
+            "プロレス", "スポーツ", "空手", "キック", "地域交流", "商店街", "学生・学校",
+            "社会人", "青少年", "パフォーマンス", "落語", "三味線", "大正琴", "ご当地ソング",
+            "ウクレレ", "幻燈", "ゴスペル", "ディスコ", "カポエイラ", "サンバ", "ブラジル",
+            "能登", "結婚式", "名古屋グランパス", "ライブ", "伝統芸能"
         ];
 
     public ObservableCollection<string> SelectedTags { get; } = [];
@@ -137,7 +140,7 @@ public partial class MainWindow : Window
             EditStartTimeText.Text = schedule?.StartTimeText ?? "—";
             EditEndTimeText.Text = schedule?.EndTimeText ?? "—";
             EditTitleText.Text = schedule?.Title ?? "イベントを選択してください";
-            EditCategoryComboBox.SelectedItem = schedule?.Category;
+            EditGenreComboBox.SelectedItem = schedule?.Genre;
             EditVerifiedCheckBox.IsChecked = schedule?.Verified ?? false;
 
             SelectedTags.Clear();
@@ -155,12 +158,12 @@ public partial class MainWindow : Window
         }
     }
 
-    private void EditCategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void EditGenreComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (_updatingEditControls || _selectedSchedule is null)
             return;
-        if (EditCategoryComboBox.SelectedItem is string category)
-            _selectedSchedule.Category = category;
+        if (EditGenreComboBox.SelectedItem is string genre)
+            _selectedSchedule.Genre = genre;
     }
 
     private void EditVerifiedCheckBox_Changed(object sender, RoutedEventArgs e)
@@ -250,13 +253,13 @@ public sealed class EventSchedule : INotifyPropertyChanged
     public string Title { get; }
     public long VenueId { get; }
     public string Description { get; }
-    private string _category;
+    private string _genre;
     private bool _verified;
-    public string Category { get => _category; set { if (_category == value) return; _category = value; OnPropertyChanged(); } }
+    public string Genre { get => _genre; set { if (_genre == value) return; _genre = value; OnPropertyChanged(); } }
     public bool Verified { get => _verified; set { if (_verified == value) return; _verified = value; OnPropertyChanged(); } }
     public ObservableCollection<string> Tags { get; } = [];
 
-    public EventSchedule(long id, DateOnly eventDate, TimeOnly startTime, TimeOnly? endTime, string title, long venueId, string description, string category, bool verified, IEnumerable<string>? tags = null)
+    public EventSchedule(long id, DateOnly eventDate, TimeOnly startTime, TimeOnly? endTime, string title, long venueId, string description, string genre, bool verified, IEnumerable<string>? tags = null)
     {
         Id = id;
         EventDate = eventDate;
@@ -265,7 +268,7 @@ public sealed class EventSchedule : INotifyPropertyChanged
         Title = title;
         VenueId = venueId;
         Description = description;
-        _category = category;
+        _genre = genre;
         _verified = verified;
         if (tags is not null)
         {
