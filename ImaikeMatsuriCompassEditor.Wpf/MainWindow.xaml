@@ -17,7 +17,7 @@
             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                 <TextBlock Text="今池まつり Compass Editor" FontSize="28" FontWeight="Bold"/>
-                <TextBlock Text="2026 タイムテーブル確認・カテゴリ・タグ編集" Opacity="0.65" Margin="0,2,0,0"/>
+                <TextBlock Text="2026 タイムテーブル確認・ジャンル・タグ編集" Opacity="0.65" Margin="0,2,0,0"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
                 <Button Content="再読み込み" Style="{StaticResource MaterialDesignOutlinedButton}" Click="ReloadButton_Click" Margin="0,0,8,0" Padding="16,8"/>
@@ -48,8 +48,8 @@
                         <DataGridTextColumn Header="開始" Binding="{Binding StartTimeText, Mode=OneWay}" Width="80"/>
                         <DataGridTextColumn Header="終了" Binding="{Binding EndTimeText, Mode=OneWay}" Width="80"/>
                         <DataGridTextColumn Header="タイトル" Binding="{Binding Title, Mode=OneWay}" Width="*"/>
-                        <DataGridComboBoxColumn Header="カテゴリ" SelectedItemBinding="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
-                                                ItemsSource="{Binding DataContext.Categories, RelativeSource={RelativeSource AncestorType=Window}}" Width="130"/>
+                        <DataGridComboBoxColumn Header="ジャンル" SelectedItemBinding="{Binding Genre, UpdateSourceTrigger=PropertyChanged}"
+                                                ItemsSource="{Binding DataContext.Genres, RelativeSource={RelativeSource AncestorType=Window}}" Width="110"/>
                         <DataGridCheckBoxColumn Header="確認済" Binding="{Binding Verified, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
                     </DataGrid.Columns>
                 </DataGrid>
@@ -73,8 +73,8 @@
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="150"/><ColumnDefinition Width="24"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="タイトル" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <TextBlock x:Name="EditTitleText" Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Grid.Column="2" Text="カテゴリ" FontWeight="SemiBold" VerticalAlignment="Center" Margin="20,0,10,0"/>
-                    <ComboBox x:Name="EditCategoryComboBox" Grid.Column="3" ItemsSource="{Binding Categories}" Padding="6" SelectionChanged="EditCategoryComboBox_SelectionChanged"/>
+                    <TextBlock Grid.Column="2" Text="ジャンル" FontWeight="SemiBold" VerticalAlignment="Center" Margin="20,0,10,0"/>
+                    <ComboBox x:Name="EditGenreComboBox" Grid.Column="3" ItemsSource="{Binding Genres}" Padding="6" SelectionChanged="EditGenreComboBox_SelectionChanged"/>
                     <CheckBox x:Name="EditVerifiedCheckBox" Grid.Column="5" Content="確認済" VerticalAlignment="Center" Checked="EditVerifiedCheckBox_Changed" Unchecked="EditVerifiedCheckBox_Changed"/>
                 </Grid>
                 <Grid Grid.Row="3" Margin="0,16,0,0">
@@ -106,7 +106,7 @@
 
         <StatusBar Grid.Row="3" Margin="0,16,0,0">
             <StatusBarItem x:Name="ConnectionStatus" Content="接続中…"/><Separator/>
-            <StatusBarItem Content="会場を選択 → イベントを選択 → カテゴリ・タグ編集 → 保存" Opacity="0.7"/>
+            <StatusBarItem Content="会場を選択 → イベントを選択 → ジャンル・タグ編集 → 保存" Opacity="0.7"/>
         </StatusBar>
     </Grid>
 </Window>
