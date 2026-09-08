@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        Title="今池まつり Compass Editor" Width="1250" Height="900" MinWidth="950" MinHeight="700"
+        Title="今池まつり Compass Editor" Width="1250" Height="980" MinWidth="950" MinHeight="760"
         Background="{DynamicResource MaterialDesignPaper}">
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -10,14 +10,14 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="2*" MinHeight="280"/>
-            <RowDefinition Height="Auto" MinHeight="190"/>
+            <RowDefinition Height="Auto" MinHeight="250"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Margin="0,0,0,18">
             <StackPanel>
                 <TextBlock Text="今池まつり Compass Editor" FontSize="28" FontWeight="Bold"/>
-                <TextBlock Text="2026 タイムテーブル確認・カテゴリ編集" Opacity="0.65" Margin="0,2,0,0"/>
+                <TextBlock Text="2026 タイムテーブル確認・カテゴリ・タグ編集" Opacity="0.65" Margin="0,2,0,0"/>
             </StackPanel>
             <Border HorizontalAlignment="Right" VerticalAlignment="Center" Padding="14,8" CornerRadius="4"
                     Background="{DynamicResource PrimaryHueMidBrush}">
@@ -85,6 +85,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Text="編集" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
                 <Grid Grid.Row="1" IsEnabled="{Binding ., FallbackValue=False}">
@@ -121,13 +122,53 @@
                               SelectedItem="{Binding Category, UpdateSourceTrigger=PropertyChanged}" Padding="6"/>
                     <CheckBox Grid.Column="5" Content="確認済" IsChecked="{Binding Verified, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
                 </Grid>
+                <Grid Grid.Row="3" Margin="0,16,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="240"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="タグ" FontWeight="SemiBold" VerticalAlignment="Top" Margin="0,8,10,0"/>
+                    <StackPanel Grid.Column="1">
+                        <ComboBox x:Name="TagComboBox"
+                                  ItemsSource="{Binding DataContext.AvailableTags, RelativeSource={RelativeSource AncestorType=Window}}"
+                                  materialDesign:HintAssist.Hint="追加するタグを選択"
+                                  Padding="6"/>
+                        <Button Content="タグを追加" Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Click="AddTagButton_Click" Margin="0,8,0,0" Padding="12,6"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="2" Text="選択中" FontWeight="SemiBold" VerticalAlignment="Top" Margin="20,8,10,0"/>
+                    <ScrollViewer Grid.Column="3" MaxHeight="85" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding DataContext.SelectedTags, RelativeSource={RelativeSource AncestorType=Window}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0,0,8,8" Padding="8,4" CornerRadius="12"
+                                            Background="{DynamicResource PrimaryHueMidBrush}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding}" Foreground="White" VerticalAlignment="Center"/>
+                                            <Button Content="×" Tag="{Binding}" Click="RemoveTagButton_Click"
+                                                    Margin="6,0,0,0" Padding="3,0" MinWidth="22" MinHeight="22"
+                                                    Foreground="White" Background="Transparent" BorderThickness="0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
             </Grid>
         </Border>
 
         <StatusBar Grid.Row="5" Margin="0,16,0,0">
             <StatusBarItem x:Name="ConnectionStatus" Content="接続中…"/>
             <Separator/>
-            <StatusBarItem Content="会場を選択 → イベントを選択 → 編集 → 保存" Opacity="0.7"/>
+            <StatusBarItem Content="会場を選択 → イベントを選択 → カテゴリ・タグ編集 → 保存" Opacity="0.7"/>
         </StatusBar>
     </Grid>
 </Window>
