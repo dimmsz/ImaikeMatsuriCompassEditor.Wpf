@@ -54,6 +54,7 @@
                           CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                           SelectionMode="Single" SelectionUnit="FullRow"
                           SelectedItem="{Binding SelectedSchedule, Mode=TwoWay}"
+                          PreviewMouseLeftButtonDown="ScheduleDataGrid_PreviewMouseLeftButtonDown"
                           ItemsSource="{Binding CurrentSchedules}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="日付" Binding="{Binding EventDateText, Mode=OneWay}" Width="120"/>
