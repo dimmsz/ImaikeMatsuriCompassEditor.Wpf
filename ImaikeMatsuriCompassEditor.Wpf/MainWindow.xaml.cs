@@ -14,6 +14,8 @@ public partial class MainWindow : Window
     private const string OfficialTimetableUrl = "https://www.imaike55.com/%E4%BB%8A%E6%B1%A0%E3%81%BE%E3%81%A4%E3%82%8A2026%E3%82%BF%E3%82%A4%E3%83%A0%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB";
     private readonly SupabaseService _supabase = new();
     private readonly List<EventSchedule> _allSchedules = [];
+    private CancellationTokenSource? _autoSaveCts;
+    private bool _dataLoaded;
 
     public ObservableCollection<Venue> Venues { get; } = [];
     public ObservableCollection<EventSchedule> CurrentSchedules { get; } = [];
@@ -67,6 +69,8 @@ public partial class MainWindow : Window
     {
         try
         {
+            _dataLoaded = false;
+            _autoSaveCts?.Cancel();
             ConnectionStatus.Content = "Supabase接続中…";
             var venues = await _supabase.GetVenuesAsync();
             var schedules = await _supabase.GetSchedulesAsync();
@@ -77,8 +81,9 @@ public partial class MainWindow : Window
             _allSchedules.AddRange(schedules);
 
             SelectedSchedule = null;
-            ConnectionStatus.Content = $"接続済み / 会場 {Venues.Count} / スケジュール {_allSchedules.Count}件";
+            ConnectionStatus.Content = $"接続済み / 会場 {Venues.Count} / スケジュール {_allSchedules.Count}件 / 自動保存ON";
             VenueComboBox.SelectedIndex = Venues.Count > 0 ? 0 : -1;
+            _dataLoaded = true;
         }
         catch (Exception ex)
         {
@@ -163,7 +168,10 @@ public partial class MainWindow : Window
         if (_updatingEditControls || _selectedSchedule is null)
             return;
         if (EditGenreComboBox.SelectedItem is string genre)
+        {
             _selectedSchedule.Genre = genre;
+            QueueAutoSave(_selectedSchedule);
+        }
     }
 
     private void EditVerifiedCheckBox_Changed(object sender, RoutedEventArgs e)
@@ -171,6 +179,7 @@ public partial class MainWindow : Window
         if (_updatingEditControls || _selectedSchedule is null)
             return;
         _selectedSchedule.Verified = EditVerifiedCheckBox.IsChecked == true;
+        QueueAutoSave(_selectedSchedule);
     }
 
     private void AddTagButton_Click(object sender, RoutedEventArgs e)
@@ -183,6 +192,7 @@ public partial class MainWindow : Window
         if (!SelectedTags.Contains(tag))
             SelectedTags.Add(tag);
         TagComboBox.SelectedIndex = -1;
+        QueueAutoSave(SelectedSchedule);
     }
 
     private void RemoveTagButton_Click(object sender, RoutedEventArgs e)
@@ -191,6 +201,51 @@ public partial class MainWindow : Window
             return;
         SelectedSchedule.Tags.Remove(tag);
         SelectedTags.Remove(tag);
+        QueueAutoSave(SelectedSchedule);
+    }
+
+    private void QueueAutoSave(EventSchedule schedule)
+    {
+        if (!_dataLoaded)
+            return;
+
+        _autoSaveCts?.Cancel();
+        var cts = new CancellationTokenSource();
+        _autoSaveCts = cts;
+        _ = AutoSaveAsync(schedule, cts.Token);
+    }
+
+    private async Task AutoSaveAsync(EventSchedule schedule, CancellationToken cancellationToken)
+    {
+        try
+        {
+            ConnectionStatus.Content = "変更を自動保存中…";
+            await Task.Delay(350, cancellationToken);
+            await _supabase.UpdateScheduleAsync(schedule, cancellationToken);
+            ConnectionStatus.Content = $"自動保存済み / {_allSchedules.Count}件中 編集中の1件を保存";
+        }
+        catch (OperationCanceledException)
+        {
+            // 次の変更による自動保存に置き換えられたため何もしない。
+        }
+        catch (Exception ex)
+        {
+            ConnectionStatus.Content = "自動保存エラー";
+            Debug.WriteLine($"Auto save failed for schedule {schedule.Id}: {ex}");
+        }
+        finally
+        {
+            ctsDisposeIfCurrent(cancellationToken);
+        }
+    }
+
+    private void ctsDisposeIfCurrent(CancellationToken cancellationToken)
+    {
+        if (_autoSaveCts?.Token == cancellationToken)
+        {
+            _autoSaveCts.Dispose();
+            _autoSaveCts = null;
+        }
     }
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -199,13 +254,14 @@ public partial class MainWindow : Window
         {
             ScheduleDataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
             ScheduleDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
+            _autoSaveCts?.Cancel();
             SaveButton.IsEnabled = false;
-            ConnectionStatus.Content = "保存中…";
+            ConnectionStatus.Content = "全件保存中…";
 
             foreach (var schedule in _allSchedules)
                 await _supabase.UpdateScheduleAsync(schedule);
 
-            ConnectionStatus.Content = $"保存完了 / {_allSchedules.Count}件";
+            ConnectionStatus.Content = $"全件保存完了 / {_allSchedules.Count}件";
         }
         catch (Exception ex)
         {
