@@ -15,7 +15,27 @@ public partial class MainWindow : Window
 
     public ObservableCollection<Venue> Venues { get; } = [];
     public ObservableCollection<EventSchedule> CurrentSchedules { get; } = [];
-    public EventSchedule? SelectedSchedule { get; private set; }
+
+    private EventSchedule? _selectedSchedule;
+    public EventSchedule? SelectedSchedule
+    {
+        get => _selectedSchedule;
+        set
+        {
+            if (ReferenceEquals(_selectedSchedule, value)) return;
+
+            _selectedSchedule = value;
+            SelectedTags.Clear();
+            if (value is not null)
+            {
+                foreach (var tag in value.Tags)
+                    SelectedTags.Add(tag);
+            }
+
+            OnPropertyChanged();
+        }
+    }
+
     public ObservableCollection<string> Categories { get; } =
         ["音楽", "ダンス", "大道芸", "演劇", "トーク", "伝統芸能", "紙芝居", "マジック", "その他"];
 
@@ -58,7 +78,7 @@ public partial class MainWindow : Window
             _allSchedules.Clear();
             _allSchedules.AddRange(schedules);
 
-            SetSelectedSchedule(null);
+            SelectedSchedule = null;
             ConnectionStatus.Content = $"接続済み / 会場 {Venues.Count} / スケジュール {_allSchedules.Count}件";
             VenueComboBox.SelectedIndex = Venues.Count > 0 ? 0 : -1;
         }
@@ -75,7 +95,7 @@ public partial class MainWindow : Window
         {
             CurrentSchedules.Clear();
             ScheduleCountText.Text = "-";
-            SetSelectedSchedule(null);
+            SelectedSchedule = null;
             return;
         }
 
@@ -89,24 +109,7 @@ public partial class MainWindow : Window
         }
 
         ScheduleCountText.Text = CurrentSchedules.Count.ToString();
-        SetSelectedSchedule(null);
-    }
-
-    private void ScheduleDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        SetSelectedSchedule(ScheduleDataGrid.SelectedItem as EventSchedule);
-    }
-
-    private void SetSelectedSchedule(EventSchedule? schedule)
-    {
-        SelectedSchedule = schedule;
-        SelectedTags.Clear();
-        if (schedule is not null)
-        {
-            foreach (var tag in schedule.Tags)
-                SelectedTags.Add(tag);
-        }
-        OnPropertyChanged(nameof(SelectedSchedule));
+        SelectedSchedule = null;
     }
 
     private void AddTagButton_Click(object sender, RoutedEventArgs e)
