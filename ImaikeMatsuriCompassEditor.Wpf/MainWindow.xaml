@@ -24,9 +24,9 @@
         </Grid>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
-            <Button Content="&#xE72C;  再読み込み" Style="{StaticResource MaterialDesignOutlinedButton}" Click="ReloadButton_Click" Margin="0,0,8,0" Padding="16,8"/>
-            <Button Content="&#xE74E;  保存" Style="{StaticResource MaterialDesignRaisedButton}" x:Name="SaveButton" Click="SaveButton_Click" Margin="0,0,8,0" Padding="18,8"/>
-            <Button Content="&#xE8A5;  公式タイムテーブル" Style="{StaticResource MaterialDesignOutlinedButton}" Click="OfficialButton_Click" Padding="16,8"/>
+            <Button Content="再読み込み" Style="{StaticResource MaterialDesignOutlinedButton}" Click="ReloadButton_Click" Margin="0,0,8,0" Padding="16,8"/>
+            <Button Content="保存" Style="{StaticResource MaterialDesignRaisedButton}" x:Name="SaveButton" Click="SaveButton_Click" Margin="0,0,8,0" Padding="18,8"/>
+            <Button Content="公式タイムテーブル" Style="{StaticResource MaterialDesignOutlinedButton}" Click="OfficialButton_Click" Padding="16,8"/>
         </StackPanel>
 
         <Grid Grid.Row="2">
@@ -44,8 +44,9 @@
                     </Grid.RowDefinitions>
                     <TextBox Grid.Row="0" materialDesign:HintAssist.Hint="会場名を検索" Margin="0,0,0,10" Padding="8"
                              materialDesign:TextFieldAssist.HasClearButton="True"/>
-                    <ListBox x:Name="VenueListBox" Grid.Row="1" BorderThickness="0" DisplayMemberPath="Name"
-                             SelectionChanged="VenueListBox_SelectionChanged"/>
+                    <ComboBox x:Name="VenueComboBox" Grid.Row="1" ItemsSource="{Binding Venues}" SelectedIndex="0"
+                              DisplayMemberPath="Name" materialDesign:HintAssist.Hint="会場を選択"
+                              SelectionChanged="VenueComboBox_SelectionChanged" Padding="8" VerticalAlignment="Top"/>
                 </Grid>
             </GroupBox>
 
@@ -57,15 +58,15 @@
                     </Grid.RowDefinitions>
                     <DockPanel Grid.Row="0" Margin="0,0,0,12">
                         <TextBlock x:Name="ScheduleHeaderText" Text="会場を選択してください。" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        <TextBlock DockPanel.Dock="Right" Text="カテゴリ・確認済を編集できます" Opacity="0.6" VerticalAlignment="Center"/>
+                        <TextBlock DockPanel.Dock="Right" Text="時刻は24時間表記" Opacity="0.6" VerticalAlignment="Center"/>
                     </DockPanel>
                     <DataGrid x:Name="ScheduleDataGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="False"
                               CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                               SelectionMode="Single" SelectionUnit="FullRow" ItemsSource="{Binding CurrentSchedules}">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="日付" Binding="{Binding EventDate, Mode=OneWay}" Width="110"/>
-                            <DataGridTextColumn Header="開始" Binding="{Binding StartTime, Mode=OneWay}" Width="80"/>
-                            <DataGridTextColumn Header="終了" Binding="{Binding EndTime, Mode=OneWay}" Width="80"/>
+                            <DataGridTextColumn Header="日付" Binding="{Binding EventDateText, Mode=OneWay}" Width="110"/>
+                            <DataGridTextColumn Header="開始" Binding="{Binding StartTimeText, Mode=OneWay}" Width="80"/>
+                            <DataGridTextColumn Header="終了" Binding="{Binding EndTimeText, Mode=OneWay}" Width="80"/>
                             <DataGridTextColumn Header="タイトル" Binding="{Binding Title, Mode=OneWay}" Width="*"/>
                             <DataGridComboBoxColumn Header="カテゴリ" SelectedItemBinding="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
                                                     ItemsSource="{Binding DataContext.Categories, RelativeSource={RelativeSource AncestorType=Window}}" Width="130"/>
